@@ -25,18 +25,18 @@ func newCreateCmd() *cobra.Command {
 	var res *model.Resource
 	api := plugins.CreateAPISubcommand{}
 	api.BindFlags(cmd.Flags())
+	fs := machinery.Filesystem{FS: afero.NewOsFs()}
 
 	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
 		if options != nil {
 			res = options.newResource()
 		}
-		return nil
-	}
-	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		fs := machinery.Filesystem{FS: afero.NewOsFs()}
 		if err := api.InjectResource(res); err != nil {
 			return err
 		}
+		return api.PreScaffold(fs)
+	}
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		return api.Scaffold(fs)
 	}
 	return cmd

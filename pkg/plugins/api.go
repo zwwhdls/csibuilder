@@ -6,7 +6,7 @@ import (
 	"csibuilder/pkg/plugins/scaffolds"
 	"fmt"
 	"github.com/spf13/pflag"
-	"os"
+	"path/filepath"
 )
 
 const (
@@ -40,11 +40,16 @@ func (p *CreateAPISubcommand) InjectResource(res *model.Resource) error {
 
 func (p *CreateAPISubcommand) PreScaffold(machinery.Filesystem) error {
 	// check if main.go is present in the root directory
-	if _, err := os.Stat(DefaultMainPath); os.IsNotExist(err) {
-		return fmt.Errorf("%s file should present in the root directory", DefaultMainPath)
-	}
+	//if _, err := os.Stat(DefaultMainPath); os.IsNotExist(err) {
+	//	return fmt.Errorf("%s file should present in the root directory", DefaultMainPath)
+	//}
 
-	return nil
+	// inject template path
+	curPath, err := filepath.Abs("")
+	if err != nil {
+		return fmt.Errorf("can not get abs path: %s", err)
+	}
+	return p.config.SetTemplatePath(filepath.Join(curPath, "pkg/templates"))
 }
 
 func (p *CreateAPISubcommand) Scaffold(fs machinery.Filesystem) error {

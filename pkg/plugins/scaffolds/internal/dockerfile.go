@@ -2,6 +2,8 @@ package internal
 
 import (
 	"csibuilder/pkg/machinery"
+	"fmt"
+	"os"
 	"path/filepath"
 )
 
@@ -20,26 +22,18 @@ func (f *Dockerfile) SetTemplateDefaults() error {
 	if f.Path == "" {
 		f.Path = filepath.Join(f.Repo, "Dockerfile")
 	}
+	if f.TemplatePath == "" {
+		return fmt.Errorf("can not get template path")
+	}
 
-	f.TemplateBody = dockerfileTemplate
+	templateFile := filepath.Join(f.TemplatePath, "Dockerfile.tpl")
+	body, err := os.ReadFile(templateFile)
+	if err != nil {
+		return err
+	}
+	f.TemplateBody = string(body)
 
 	f.IfExistsAction = machinery.OverwriteFile
 
 	return nil
 }
-
-const dockerfileTemplate = `
-FROM golang:1.18-buster
-
-ARG GOPROXY
-
-WORKDIR /workspace
-COPY . .
-ENV GOPROXY=${GOPROXY:-https://proxy.golang.org}
-
-RUN make csi
-RUN chmod u+x /workspace/bin/csi
-
-ENTRYPOINT ["/workspace/bin/csi"]
-
-`

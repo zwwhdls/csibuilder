@@ -3,6 +3,7 @@ package internal
 import (
 	"csibuilder/pkg/machinery"
 	"fmt"
+	"os"
 	"path/filepath"
 )
 
@@ -19,19 +20,28 @@ type Main struct {
 	Force bool
 }
 
-func (c *Main) SetTemplateDefaults() error {
-	if c.Path == "" {
-		c.Path = filepath.Join(c.Repo, "main.go")
+func (f *Main) SetTemplateDefaults() error {
+	if f.Path == "" {
+		f.Path = filepath.Join(f.Repo, "main.go")
 	}
-	c.Path = c.Resource.Replacer().Replace(c.Path)
-	fmt.Println(c.Path)
+	f.Path = f.Resource.Replacer().Replace(f.Path)
+	fmt.Println(f.Path)
 
-	c.TemplateBody = mainTemplate
+	if f.TemplatePath == "" {
+		return fmt.Errorf("can not get template path")
+	}
 
-	if c.Force {
-		c.IfExistsAction = machinery.OverwriteFile
+	templateFile := filepath.Join(f.TemplatePath, "main.go.tpl")
+	body, err := os.ReadFile(templateFile)
+	if err != nil {
+		return err
+	}
+	f.TemplateBody = string(body)
+
+	if f.Force {
+		f.IfExistsAction = machinery.OverwriteFile
 	} else {
-		c.IfExistsAction = machinery.Error
+		f.IfExistsAction = machinery.Error
 	}
 	return nil
 }

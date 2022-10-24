@@ -21,9 +21,16 @@ type Inserter interface {
 	GetCodeFragments() CodeFragmentsMap
 }
 
+// HasTemplatePath is file builder based on a file template
+type HasTemplatePath interface {
+	// InjectTemplatePath sets the template path for templates
+	InjectTemplatePath(templatePath string)
+}
+
 // Template is file builder based on a file template
 type Template interface {
 	Builder
+	HasTemplatePath
 	// GetBody returns the template body
 	GetBody() string
 	// SetTemplateDefaults sets the default values for templates

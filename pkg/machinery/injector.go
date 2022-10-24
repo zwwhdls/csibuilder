@@ -17,7 +17,12 @@ func (i injector) injectInto(builder Builder) {
 			builderWithResource.InjectResource(i.resource)
 		}
 	}
-	if builderWithRepository, hasRepository := builder.(HasRepository); hasRepository {
-		builderWithRepository.InjectRepository(i.config.GetRepository())
+	if i.config != nil {
+		if builderWithRepository, hasRepository := builder.(HasRepository); hasRepository {
+			builderWithRepository.InjectRepository(i.config.GetRepository())
+		}
+		if builderWithTemplatePath, hasTemplatePath := builder.(HasTemplatePath); hasTemplatePath {
+			builderWithTemplatePath.InjectTemplatePath(i.config.GetTemplatePath())
+		}
 	}
 }

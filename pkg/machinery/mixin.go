@@ -13,6 +13,17 @@ func (t *PathMixin) GetPath() string {
 	return t.Path
 }
 
+// TemplatePathMixin provides file builders with a path field
+type TemplatePathMixin struct {
+	// TemplatePath is the path of the template file
+	TemplatePath string
+}
+
+// InjectTemplatePath implements HasTemplatePath
+func (t *TemplatePathMixin) InjectTemplatePath(templatePath string) {
+	t.TemplatePath = templatePath
+}
+
 // IfExistsActionMixin provides file builders with a if-exists-action field
 type IfExistsActionMixin struct {
 	// IfExistsAction determines what to do if the file exists
@@ -27,6 +38,7 @@ func (t *IfExistsActionMixin) GetIfExistsAction() IfExistsAction {
 // TemplateMixin is the mixin that should be embedded in Template builders
 type TemplateMixin struct {
 	PathMixin
+	TemplatePathMixin
 	IfExistsActionMixin
 
 	// TemplateBody is the template body to execute

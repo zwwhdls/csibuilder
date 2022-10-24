@@ -2,6 +2,8 @@ package internal
 
 import (
 	"csibuilder/pkg/machinery"
+	"fmt"
+	"os"
 	"path/filepath"
 )
 
@@ -21,20 +23,18 @@ func (f *GoMod) SetTemplateDefaults() error {
 		f.Path = filepath.Join(f.Repo, "go.mod")
 	}
 
-	f.TemplateBody = goModTemplate
+	if f.TemplatePath == "" {
+		return fmt.Errorf("can not get template path")
+	}
+
+	templateFile := filepath.Join(f.TemplatePath, "go.mod.tpl")
+	body, err := os.ReadFile(templateFile)
+	if err != nil {
+		return err
+	}
+	f.TemplateBody = string(body)
 
 	f.IfExistsAction = machinery.OverwriteFile
 
 	return nil
 }
-
-const goModTemplate = `
-module {{ .Repo }}
-
-go 1.18
-
-require (
-	github.com/container-storage-interface/spec v1.6.0
-	k8s.io/klog v1.0.0
-)
-`
