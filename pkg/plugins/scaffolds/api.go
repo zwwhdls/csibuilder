@@ -5,6 +5,7 @@ import (
 	"csibuilder/pkg/model"
 	"csibuilder/pkg/plugins/scaffolds/internal"
 	"csibuilder/pkg/plugins/scaffolds/internal/csi"
+	"csibuilder/pkg/plugins/scaffolds/internal/deploy"
 	"fmt"
 )
 
@@ -47,7 +48,14 @@ func (s *ApiScaffolder) Scaffold() error {
 		&csi.Node{Force: s.force},
 		&csi.Version{Force: s.force},
 		&internal.Main{Force: s.force},
-		&internal.GoMod{},
+		&internal.GoMod{Force: s.force},
+		&internal.Dockerfile{Force: s.force},
+		&deploy.DaemonSetYaml{Force: s.force},
+		&deploy.StatefulSetYaml{Force: s.force},
+		&deploy.ClusterRoleYaml{Force: s.force},
+		&deploy.ClusterRoleBindingYaml{Force: s.force},
+		&deploy.ServiceAccountYaml{Force: s.force},
+		&deploy.CSIDriverYaml{Force: s.force},
 	); err != nil {
 		return fmt.Errorf("error scaffolding APIs: %v", err)
 	}

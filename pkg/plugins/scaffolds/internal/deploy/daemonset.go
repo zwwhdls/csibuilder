@@ -1,0 +1,136 @@
+package deploy
+
+import (
+	"csibuilder/pkg/machinery"
+	"path/filepath"
+)
+
+var _ machinery.Template = &DaemonSetYaml{}
+
+// DaemonSetYaml scaffolds a file that defines csi node deploy yaml
+type DaemonSetYaml struct {
+	machinery.TemplateMixin
+	machinery.RepositoryMixin
+	machinery.ResourceMixin
+
+	Force bool
+}
+
+// SetTemplateDefaults implements file.Template
+func (f *DaemonSetYaml) SetTemplateDefaults() error {
+	if f.Path == "" {
+		f.Path = filepath.Join(f.Repo, "deploy/daemonset.yaml")
+	}
+
+	f.TemplateBody = daemonsetTemplate
+
+	f.IfExistsAction = machinery.OverwriteFile
+
+	return nil
+}
+
+const daemonsetTemplate = `kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: {{ .Resource.CSIName }}-csi-node
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Resource.CSIName }}-csi-node
+  template:
+    metadata:
+      labels:
+        app: {{ .Resource.CSIName }}-csi-node
+    spec:
+      serviceAccountName: csi-node
+      tolerations:
+        - operator: Exists
+      priorityClassName: system-node-critical
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - args:
+            - --endpoint=$(CSI_ENDPOINT)
+            - --logtostderr
+            - --nodeid=$(NODE_NAME)
+          env:
+            - name: CSI_ENDPOINT
+              value: unix:/csi/csi.sock
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          image: csi-image
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - rm /csi/csi.sock
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /healthz
+              port: healthz
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+          name: csi-plugin
+          ports:
+            - containerPort: 9909
+              name: healthz
+              protocol: TCP
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /var/lib/kubelet
+              mountPropagation: Bidirectional
+              name: kubelet-dir
+            - mountPath: /csi
+              name: plugin-dir
+            - mountPath: /registration
+              name: registration-dir
+        - args:
+            - --csi-address=$(ADDRESS)
+            - --kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)
+            - --v=5
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+            - name: DRIVER_REG_SOCK_PATH
+              value: /var/lib/kubelet/csi-plugins/demo.csi.com/csi.sock
+          image: quay.io/k8scsi/csi-node-driver-registrar:v2.1.0
+          name: node-driver-registrar
+          volumeMounts:
+            - mountPath: /csi
+              name: plugin-dir
+            - mountPath: /registration
+              name: registration-dir
+        - args:
+            - --csi-address=$(ADDRESS)
+            - --health-port=$(HEALTH_PORT)
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+            - name: HEALTH_PORT
+              value: "9909"
+          image: quay.io/k8scsi/livenessprobe:v1.1.0
+          name: liveness-probe
+          volumeMounts:
+            - mountPath: /csi
+              name: plugin-dir
+      volumes:
+        - hostPath:
+            path: /var/lib/kubelet
+            type: Directory
+          name: kubelet-dir
+        - hostPath:
+            path: /var/lib/kubelet/csi-plugins/demo.csi.com/
+            type: DirectoryOrCreate
+          name: plugin-dir
+        - hostPath:
+            path: /var/lib/kubelet/plugins_registry/
+            type: Directory
+          name: registration-dir
+`

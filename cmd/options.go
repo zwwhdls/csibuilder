@@ -21,6 +21,7 @@ func bindResourceFlags(fs *pflag.FlagSet) *resourceOptions {
 
 func (opts resourceOptions) newResource() *model.Resource {
 	return &model.Resource{
-		CSIName: opts.CSIName,
+		CSIName:        opts.CSIName,
+		AttachRequired: opts.AttachRequired,
 	}
 }

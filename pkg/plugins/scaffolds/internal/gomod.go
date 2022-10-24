@@ -12,7 +12,7 @@ type GoMod struct {
 	machinery.TemplateMixin
 	machinery.RepositoryMixin
 
-	ControllerRuntimeVersion string
+	Force bool
 }
 
 // SetTemplateDefaults implements file.Template
@@ -37,5 +37,4 @@ require (
 	github.com/container-storage-interface/spec v1.6.0
 	k8s.io/klog v1.0.0
 )
-
 `

@@ -45,7 +45,7 @@ import (
 	"github.com/container-storage-interface/spec/lib/go/csi"
 )
 
-func (d *CSIDriver) GetPluginInfo(ctx context.Context, request *csi.GetPluginInfoRequest) (*csi.GetPluginInfoResponse, error) {
+func (d *Driver) GetPluginInfo(ctx context.Context, request *csi.GetPluginInfoRequest) (*csi.GetPluginInfoResponse, error) {
 	resp := &csi.GetPluginInfoResponse{
 		Name:          DriverName,
 		VendorVersion: "v1",
@@ -53,7 +53,7 @@ func (d *CSIDriver) GetPluginInfo(ctx context.Context, request *csi.GetPluginInf
 	return resp, nil
 }
 
-func (d *CSIDriver) GetPluginCapabilities(ctx context.Context, request *csi.GetPluginCapabilitiesRequest) (*csi.GetPluginCapabilitiesResponse, error) {
+func (d *Driver) GetPluginCapabilities(ctx context.Context, request *csi.GetPluginCapabilitiesRequest) (*csi.GetPluginCapabilitiesResponse, error) {
 	resp := &csi.GetPluginCapabilitiesResponse{
 		Capabilities: []*csi.PluginCapability{
 			{
@@ -68,7 +68,7 @@ func (d *CSIDriver) GetPluginCapabilities(ctx context.Context, request *csi.GetP
 	return resp, nil
 }
 
-func (d *CSIDriver) Probe(ctx context.Context, request *csi.ProbeRequest) (*csi.ProbeResponse, error) {
+func (d *Driver) Probe(ctx context.Context, request *csi.ProbeRequest) (*csi.ProbeResponse, error) {
 	return &csi.ProbeResponse{}, nil
 }
 
