@@ -3,7 +3,6 @@ package internal
 import (
 	"csibuilder/pkg/machinery"
 	"fmt"
-	"os"
 	"path/filepath"
 )
 
@@ -26,8 +25,8 @@ func (f *Dockerfile) SetTemplateDefaults() error {
 		return fmt.Errorf("can not get template path")
 	}
 
-	templateFile := filepath.Join(f.TemplatePath, "Dockerfile.tpl")
-	body, err := os.ReadFile(templateFile)
+	//templateFile := filepath.Join(f.TemplatePath, "Dockerfile.tpl")
+	body, err := tplFS.ReadFile("templates/Dockerfile.tpl")
 	if err != nil {
 		return err
 	}

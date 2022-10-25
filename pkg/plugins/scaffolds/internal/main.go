@@ -2,8 +2,8 @@ package internal
 
 import (
 	"csibuilder/pkg/machinery"
+	"embed"
 	"fmt"
-	"os"
 	"path/filepath"
 )
 
@@ -20,6 +20,9 @@ type Main struct {
 	Force bool
 }
 
+//go:embed templates/*
+var tplFS embed.FS
+
 func (f *Main) SetTemplateDefaults() error {
 	if f.Path == "" {
 		f.Path = filepath.Join(f.Repo, "main.go")
@@ -31,8 +34,8 @@ func (f *Main) SetTemplateDefaults() error {
 		return fmt.Errorf("can not get template path")
 	}
 
-	templateFile := filepath.Join(f.TemplatePath, "main.go.tpl")
-	body, err := os.ReadFile(templateFile)
+	//templateFile := filepath.Join(f.TemplatePath, "main.go.tpl")
+	body, err := tplFS.ReadFile("templates/main.go.tpl")
 	if err != nil {
 		return err
 	}
