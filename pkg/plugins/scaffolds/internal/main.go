@@ -1,3 +1,19 @@
+/*
+ Copyright 2022 CSIBuilder
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License
+*/
+
 package internal
 
 import (
@@ -13,9 +29,9 @@ var _ machinery.Template = &Main{}
 // nolint:maligned
 type Main struct {
 	machinery.TemplateMixin
-	machinery.MultiGroupMixin
 	machinery.ResourceMixin
 	machinery.RepositoryMixin
+	machinery.BoilerplateMixin
 
 	Force bool
 }
@@ -34,7 +50,6 @@ func (f *Main) SetTemplateDefaults() error {
 		return fmt.Errorf("can not get template path")
 	}
 
-	//templateFile := filepath.Join(f.TemplatePath, "main.go.tpl")
 	body, err := tplFS.ReadFile("templates/main.go.tpl")
 	if err != nil {
 		return err
@@ -48,43 +63,3 @@ func (f *Main) SetTemplateDefaults() error {
 	}
 	return nil
 }
-
-const mainTemplate = `
-package csi
-
-import (
-	"flag"
-	"fmt"
-	"os"
-
-	"k8s.io/klog"
-
-	"{{ .Repo }}/pkg/csi"
-)
-
-var (
-	endpoint = flag.String("endpoint", "unix://tmp/csi.sock", "CSI Endpoint")
-	version  = flag.Bool("version", false, "Print the version and exit.")
-	nodeID   = flag.String("nodeid", "", "Node ID")
-)
-
-func main() {
-	if *version {
-		info, err := csi.GetVersionJSON()
-		if err != nil {
-			klog.Fatalln(err)
-		}
-		fmt.Println(info)
-		os.Exit(0)
-	}
-	if *nodeID == "" {
-		klog.Fatalln("nodeID must be provided")
-	}
-
-	drv := csi.NewDriver(*endpoint, *nodeID)
-	if err := drv.Run(); err != nil {
-		klog.Fatalln(err)
-	}
-}
-
-`

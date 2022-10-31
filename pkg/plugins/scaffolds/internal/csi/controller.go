@@ -1,9 +1,27 @@
+/*
+ Copyright 2022 CSIBuilder
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License
+*/
+
 package csi
 
 import (
-	"csibuilder/pkg/machinery"
+	"embed"
 	"fmt"
 	"path/filepath"
+
+	"csibuilder/pkg/machinery"
 )
 
 var _ machinery.Template = &Controller{}
@@ -12,12 +30,15 @@ var _ machinery.Template = &Controller{}
 // nolint:maligned
 type Controller struct {
 	machinery.TemplateMixin
-	machinery.MultiGroupMixin
 	machinery.ResourceMixin
 	machinery.RepositoryMixin
+	machinery.BoilerplateMixin
 
 	Force bool
 }
+
+//go:embed templates/*
+var tplFS embed.FS
 
 func (c *Controller) SetTemplateDefaults() error {
 	if c.Path == "" {
@@ -26,7 +47,15 @@ func (c *Controller) SetTemplateDefaults() error {
 	c.Path = c.Resource.Replacer().Replace(c.Path)
 	fmt.Println(c.Path)
 
-	c.TemplateBody = controllerTemplate
+	if c.TemplatePath == "" {
+		return fmt.Errorf("can not get template path")
+	}
+
+	body, err := tplFS.ReadFile("templates/controller.go.tpl")
+	if err != nil {
+		return err
+	}
+	c.TemplateBody = string(body)
 
 	if c.Force {
 		c.IfExistsAction = machinery.OverwriteFile
@@ -35,118 +64,3 @@ func (c *Controller) SetTemplateDefaults() error {
 	}
 	return nil
 }
-
-const controllerTemplate = `
-package csi
-
-import (
-	"context"
-
-	"github.com/container-storage-interface/spec/lib/go/csi"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-)
-
-var (
-	controllerCaps = []csi.ControllerServiceCapability_RPC_Type{
-		csi.ControllerServiceCapability_RPC_CREATE_DELETE_VOLUME,
-	}
-)
-
-type controllerService struct {
-}
-
-func newControllerService() controllerService {
-	return controllerService{}
-}
-
-func (d *controllerService) CreateVolume(ctx context.Context, request *csi.CreateVolumeRequest) (*csi.CreateVolumeResponse, error) {
-	if len(request.Name) == 0 {
-		return nil, status.Error(codes.InvalidArgument, "Volume Name cannot be empty")
-	}
-	if request.VolumeCapabilities == nil {
-		return nil, status.Error(codes.InvalidArgument, "Volume Capabilities cannot be empty")
-	}
-
-	requiredCap := request.CapacityRange.GetRequiredBytes()
-
-	volCtx := make(map[string]string)
-	for k, v := range request.Parameters {
-		volCtx[k] = v
-	}
-
-	volCtx["subPath"] = request.Name
-
-	volume := csi.Volume{
-		VolumeId:      request.Name,
-		CapacityBytes: requiredCap,
-		VolumeContext: volCtx,
-	}
-
-	// TODO modify your createVolume logic here
-
-	return &csi.CreateVolumeResponse{Volume: &volume}, nil
-}
-
-func (d *controllerService) DeleteVolume(ctx context.Context, request *csi.DeleteVolumeRequest) (*csi.DeleteVolumeResponse, error) {
-	// TODO modify your deleteVolume logic here
-
-	return nil, nil
-}
-
-func (d *controllerService) ControllerGetCapabilities(ctx context.Context, request *csi.ControllerGetCapabilitiesRequest) (*csi.ControllerGetCapabilitiesResponse, error) {
-	var caps []*csi.ControllerServiceCapability
-	for _, cap := range controllerCaps {
-		c := &csi.ControllerServiceCapability{
-			Type: &csi.ControllerServiceCapability_Rpc{
-				Rpc: &csi.ControllerServiceCapability_RPC{
-					Type: cap,
-				},
-			},
-		}
-		caps = append(caps, c)
-	}
-	return &csi.ControllerGetCapabilitiesResponse{Capabilities: caps}, nil
-}
-
-func (d *controllerService) ControllerPublishVolume(ctx context.Context, request *csi.ControllerPublishVolumeRequest) (*csi.ControllerPublishVolumeResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "")
-}
-
-func (d *controllerService) ControllerUnpublishVolume(ctx context.Context, request *csi.ControllerUnpublishVolumeRequest) (*csi.ControllerUnpublishVolumeResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "")
-}
-
-func (d *controllerService) ValidateVolumeCapabilities(ctx context.Context, request *csi.ValidateVolumeCapabilitiesRequest) (*csi.ValidateVolumeCapabilitiesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "")
-}
-
-func (d *controllerService) ListVolumes(ctx context.Context, request *csi.ListVolumesRequest) (*csi.ListVolumesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "")
-}
-
-func (d *controllerService) GetCapacity(ctx context.Context, request *csi.GetCapacityRequest) (*csi.GetCapacityResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "")
-}
-
-func (d *controllerService) CreateSnapshot(ctx context.Context, request *csi.CreateSnapshotRequest) (*csi.CreateSnapshotResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "")
-}
-
-func (d *controllerService) DeleteSnapshot(ctx context.Context, request *csi.DeleteSnapshotRequest) (*csi.DeleteSnapshotResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "")
-}
-
-func (d *controllerService) ListSnapshots(ctx context.Context, request *csi.ListSnapshotsRequest) (*csi.ListSnapshotsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "")
-}
-
-func (d *controllerService) ControllerExpandVolume(ctx context.Context, request *csi.ControllerExpandVolumeRequest) (*csi.ControllerExpandVolumeResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "")
-}
-
-func (d *controllerService) ControllerGetVolume(ctx context.Context, request *csi.ControllerGetVolumeRequest) (*csi.ControllerGetVolumeResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "")
-}
-
-`

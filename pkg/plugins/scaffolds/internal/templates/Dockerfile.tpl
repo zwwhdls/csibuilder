@@ -1,3 +1,5 @@
+{{ .Boilerplate }}
+
 FROM golang:1.18-buster
 
 ARG GOPROXY

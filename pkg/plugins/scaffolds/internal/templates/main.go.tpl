@@ -1,3 +1,5 @@
+{{ .Boilerplate }}
+
 package csi
 
 import (

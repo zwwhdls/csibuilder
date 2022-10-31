@@ -1,3 +1,19 @@
+/*
+ Copyright 2022 CSIBuilder
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License
+*/
+
 package main
 
 import (
@@ -8,21 +24,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	repo = ""
-)
-
 func newCreateCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:        "create",
 		SuggestFor: []string{"new"},
-		Short:      "Scaffold a Kubernetes API",
-		Long:       `Scaffold a Kubernetes API.`,
+		Short:      "Scaffold a CSI Driver",
+		Long:       `Scaffold a CSI Driver.`,
 	}
 
 	var options *resourceOptions
 	options = bindResourceFlags(cmd.Flags())
-	var res *model.Resource
+	res := &model.Resource{}
+	conf := &model.Config{}
 	api := plugins.CreateAPISubcommand{}
 	api.BindFlags(cmd.Flags())
 	fs := machinery.Filesystem{FS: afero.NewOsFs()}
@@ -32,6 +45,9 @@ func newCreateCmd() *cobra.Command {
 			res = options.newResource()
 		}
 		if err := api.InjectResource(res); err != nil {
+			return err
+		}
+		if err := api.InjectConfig(conf); err != nil {
 			return err
 		}
 		return api.PreScaffold(fs)

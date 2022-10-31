@@ -1,3 +1,19 @@
+/*
+ Copyright 2022 CSIBuilder
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License
+*/
+
 package machinery
 
 import "csibuilder/pkg/model"
@@ -61,19 +77,6 @@ func (t *InserterMixin) GetIfExistsAction() IfExistsAction {
 	return OverwriteFile
 }
 
-// DomainMixin provides templates with a injectable domain field
-type DomainMixin struct {
-	// Domain is the domain for the APIs
-	Domain string
-}
-
-// InjectDomain implements HasDomain
-func (m *DomainMixin) InjectDomain(domain string) {
-	if m.Domain == "" {
-		m.Domain = domain
-	}
-}
-
 // RepositoryMixin provides templates with a injectable repository field
 type RepositoryMixin struct {
 	// Repo is the go project package path
@@ -99,28 +102,6 @@ func (m *ProjectNameMixin) InjectProjectName(projectName string) {
 	}
 }
 
-// MultiGroupMixin provides templates with a injectable multi-group flag field
-type MultiGroupMixin struct {
-	// MultiGroup is the multi-group flag
-	MultiGroup bool
-}
-
-// InjectMultiGroup implements HasMultiGroup
-func (m *MultiGroupMixin) InjectMultiGroup(flag bool) {
-	m.MultiGroup = flag
-}
-
-// ComponentConfigMixin provides templates with a injectable component-config flag field
-type ComponentConfigMixin struct {
-	// ComponentConfig is the component-config flag
-	ComponentConfig bool
-}
-
-// InjectComponentConfig implements HasComponentConfig
-func (m *ComponentConfigMixin) InjectComponentConfig(flag bool) {
-	m.ComponentConfig = flag
-}
-
 // ResourceMixin provides templates with a injectable resource field
 type ResourceMixin struct {
 	Resource *model.Resource
@@ -130,5 +111,18 @@ type ResourceMixin struct {
 func (m *ResourceMixin) InjectResource(res *model.Resource) {
 	if m.Resource == nil {
 		m.Resource = res
+	}
+}
+
+// BoilerplateMixin provides templates with a injectable boilerplate field
+type BoilerplateMixin struct {
+	// Boilerplate is the contents of a Boilerplate go header file
+	Boilerplate string
+}
+
+// InjectBoilerplate implements HasBoilerplate
+func (m *BoilerplateMixin) InjectBoilerplate(boilerplate string) {
+	if m.Boilerplate == "" {
+		m.Boilerplate = boilerplate
 	}
 }

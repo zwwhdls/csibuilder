@@ -1,7 +1,24 @@
+/*
+ Copyright 2022 CSIBuilder
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License
+*/
+
 package deploy
 
 import (
 	"csibuilder/pkg/machinery"
+	"fmt"
 	"path/filepath"
 )
 
@@ -21,116 +38,19 @@ func (f *DaemonSetYaml) SetTemplateDefaults() error {
 	if f.Path == "" {
 		f.Path = filepath.Join(f.Repo, "deploy/daemonset.yaml")
 	}
+	fmt.Println(f.Path)
 
-	f.TemplateBody = daemonsetTemplate
+	if f.TemplatePath == "" {
+		return fmt.Errorf("can not get template path")
+	}
+
+	body, err := tplFS.ReadFile("templates/daemonset.yaml.tpl")
+	if err != nil {
+		return err
+	}
+	f.TemplateBody = string(body)
 
 	f.IfExistsAction = machinery.OverwriteFile
 
 	return nil
 }
-
-const daemonsetTemplate = `kind: DaemonSet
-apiVersion: apps/v1
-metadata:
-  name: {{ .Resource.CSIName }}-csi-node
-  namespace: default
-spec:
-  selector:
-    matchLabels:
-      app: {{ .Resource.CSIName }}-csi-node
-  template:
-    metadata:
-      labels:
-        app: {{ .Resource.CSIName }}-csi-node
-    spec:
-      serviceAccountName: csi-node
-      tolerations:
-        - operator: Exists
-      priorityClassName: system-node-critical
-      dnsPolicy: ClusterFirstWithHostNet
-      containers:
-        - args:
-            - --endpoint=$(CSI_ENDPOINT)
-            - --logtostderr
-            - --nodeid=$(NODE_NAME)
-          env:
-            - name: CSI_ENDPOINT
-              value: unix:/csi/csi.sock
-            - name: NODE_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: spec.nodeName
-          image: csi-image
-          lifecycle:
-            preStop:
-              exec:
-                command:
-                  - /bin/sh
-                  - -c
-                  - rm /csi/csi.sock
-          livenessProbe:
-            failureThreshold: 5
-            httpGet:
-              path: /healthz
-              port: healthz
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            timeoutSeconds: 3
-          name: csi-plugin
-          ports:
-            - containerPort: 9909
-              name: healthz
-              protocol: TCP
-          securityContext:
-            privileged: true
-          volumeMounts:
-            - mountPath: /var/lib/kubelet
-              mountPropagation: Bidirectional
-              name: kubelet-dir
-            - mountPath: /csi
-              name: plugin-dir
-            - mountPath: /registration
-              name: registration-dir
-        - args:
-            - --csi-address=$(ADDRESS)
-            - --kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)
-            - --v=5
-          env:
-            - name: ADDRESS
-              value: /csi/csi.sock
-            - name: DRIVER_REG_SOCK_PATH
-              value: /var/lib/kubelet/csi-plugins/demo.csi.com/csi.sock
-          image: quay.io/k8scsi/csi-node-driver-registrar:v2.1.0
-          name: node-driver-registrar
-          volumeMounts:
-            - mountPath: /csi
-              name: plugin-dir
-            - mountPath: /registration
-              name: registration-dir
-        - args:
-            - --csi-address=$(ADDRESS)
-            - --health-port=$(HEALTH_PORT)
-          env:
-            - name: ADDRESS
-              value: /csi/csi.sock
-            - name: HEALTH_PORT
-              value: "9909"
-          image: quay.io/k8scsi/livenessprobe:v1.1.0
-          name: liveness-probe
-          volumeMounts:
-            - mountPath: /csi
-              name: plugin-dir
-      volumes:
-        - hostPath:
-            path: /var/lib/kubelet
-            type: Directory
-          name: kubelet-dir
-        - hostPath:
-            path: /var/lib/kubelet/csi-plugins/demo.csi.com/
-            type: DirectoryOrCreate
-          name: plugin-dir
-        - hostPath:
-            path: /var/lib/kubelet/plugins_registry/
-            type: Directory
-          name: registration-dir
-`
