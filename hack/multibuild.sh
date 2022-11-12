@@ -25,16 +25,16 @@ BINDIR=$2
 build() {
   echo "build OS=$1 Arch=$2"
   mkdir -p $BINDIR/$1/$2
-  CGO_ENABLED=0 GOOS=$1 GOARCH=$2 go build -ldflags "-s -w" -o $BINDIR/$1/$2/csibuilder-$1-$2 $PKG
+  CGO_ENABLED=0 GOOS=$1 GOARCH=$2 go build -ldflags "-s -w" -o $BINDIR/$1/$2/csibuilder $PKG
 }
 
 release() {
   echo "release OS=$1 Arch=$2"
   mkdir -p $BINDIR/release
-  binFilePath="$BINDIR/$1/$2/csibuilder-$1-$2"
+  binFilePath="$BINDIR/$1/$2"
   tarFilePath="$BINDIR/release/csibuilder-$1-$2.tar"
 
-  tar -zcvf $tarFilePath $binFilePath
+  tar -zcvf $tarFilePath -C$binFilePath csibuilder
 }
 
 main(){
