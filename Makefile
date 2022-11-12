@@ -1,15 +1,12 @@
-LD_FLAGS=-ldflags " \
-    -X main.csiBuilderVersion=$(shell git describe --tags --dirty --broken) \
-    -X main.goos=$(shell go env GOOS) \
-    -X main.goarch=$(shell go env GOARCH) \
-    -X main.gitCommit=$(shell git rev-parse HEAD) \
-    -X main.buildDate=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ') \
-    "
+.PHONY: build test
 
-.PHONY: build
+BASE_PATH=$(shell pwd)
+
 build:
-	go build $(LD_FLAGS) -o bin/csibuilder ./cmd/
+		docker run --rm -v $(BASE_PATH):/go/src/github.com/zwwhdls/csibuilder \
+    	-v $(BASE_PATH)/bin:/bin/csibuilder \
+    	-w /go/src/github.com/zwwhdls/csibuilder \
+    	golang:1.17 sh ./hack/multibuild.sh ./cmd /bin/csibuilder
 
-.PHONY: test
 test:
 	go test -v -race -cover ./pkg/... -coverprofile=cov.out
