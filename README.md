@@ -1,6 +1,6 @@
 ## CSIbuilder
 
-CSIbuilder is a SDK for building Kubernetes CSI Driver.
+CSIbuilder is an SDK for building Kubernetes CSI Driver.
 
 Similar to Kubebuilder, CSIbuilder does **not** exist as an example to *copy-paste*, but instead provides powerful
 libraries and tools to simplify building and publishing Kubernetes CSI Driver from scratch.
