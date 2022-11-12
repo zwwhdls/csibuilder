@@ -19,7 +19,6 @@ package csi
 import (
 	"embed"
 	"fmt"
-	"path/filepath"
 
 	"csibuilder/pkg/machinery"
 )
@@ -42,14 +41,10 @@ var tplFS embed.FS
 
 func (c *Controller) SetTemplateDefaults() error {
 	if c.Path == "" {
-		c.Path = filepath.Join(c.Repo, "pkg/csi/controller.go")
+		c.Path = "pkg/csi/controller.go"
 	}
 	c.Path = c.Resource.Replacer().Replace(c.Path)
 	fmt.Println(c.Path)
-
-	if c.TemplatePath == "" {
-		return fmt.Errorf("can not get template path")
-	}
 
 	body, err := tplFS.ReadFile("templates/controller.go.tpl")
 	if err != nil {

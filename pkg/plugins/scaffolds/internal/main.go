@@ -17,10 +17,10 @@
 package internal
 
 import (
-	"csibuilder/pkg/machinery"
 	"embed"
 	"fmt"
-	"path/filepath"
+
+	"csibuilder/pkg/machinery"
 )
 
 var _ machinery.Template = &Main{}
@@ -41,14 +41,10 @@ var tplFS embed.FS
 
 func (f *Main) SetTemplateDefaults() error {
 	if f.Path == "" {
-		f.Path = filepath.Join(f.Repo, "main.go")
+		f.Path = "main.go"
 	}
 	f.Path = f.Resource.Replacer().Replace(f.Path)
 	fmt.Println(f.Path)
-
-	if f.TemplatePath == "" {
-		return fmt.Errorf("can not get template path")
-	}
 
 	body, err := tplFS.ReadFile("templates/main.go.tpl")
 	if err != nil {

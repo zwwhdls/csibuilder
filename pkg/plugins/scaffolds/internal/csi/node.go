@@ -17,9 +17,10 @@
 package csi
 
 import (
-	"csibuilder/pkg/machinery"
 	"fmt"
 	"path/filepath"
+
+	"csibuilder/pkg/machinery"
 )
 
 var _ machinery.Template = &Node{}
@@ -37,14 +38,10 @@ type Node struct {
 
 func (c *Node) SetTemplateDefaults() error {
 	if c.Path == "" {
-		c.Path = filepath.Join(c.Repo, "pkg/csi", "node.go")
+		c.Path = filepath.Join("pkg/csi", "node.go")
 	}
 	c.Path = c.Resource.Replacer().Replace(c.Path)
 	fmt.Println(c.Path)
-
-	if c.TemplatePath == "" {
-		return fmt.Errorf("can not get template path")
-	}
 
 	body, err := tplFS.ReadFile("templates/node.go.tpl")
 	if err != nil {

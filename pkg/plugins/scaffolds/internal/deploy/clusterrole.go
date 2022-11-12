@@ -17,10 +17,10 @@
 package deploy
 
 import (
-	"csibuilder/pkg/machinery"
 	"embed"
 	"fmt"
-	"path/filepath"
+
+	"csibuilder/pkg/machinery"
 )
 
 var _ machinery.Template = &ClusterRoleYaml{}
@@ -41,13 +41,9 @@ var tplFS embed.FS
 // SetTemplateDefaults implements file.Template
 func (f *ClusterRoleYaml) SetTemplateDefaults() error {
 	if f.Path == "" {
-		f.Path = filepath.Join(f.Repo, "deploy/clusterrole.yaml")
+		f.Path = "deploy/clusterrole.yaml"
 	}
 	fmt.Println(f.Path)
-
-	if f.TemplatePath == "" {
-		return fmt.Errorf("can not get template path")
-	}
 
 	body, err := tplFS.ReadFile("templates/clusterrole.yaml.tpl")
 	if err != nil {

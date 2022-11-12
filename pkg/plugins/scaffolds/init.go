@@ -18,18 +18,17 @@ package scaffolds
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/spf13/afero"
 
+	"csibuilder/pkg/config"
 	"csibuilder/pkg/machinery"
-	"csibuilder/pkg/model"
 	"csibuilder/pkg/plugins/scaffolds/internal"
 	"csibuilder/pkg/plugins/scaffolds/internal/hack"
 )
 
 type initScaffolder struct {
-	config          model.Config
+	config          config.Config
 	boilerplatePath string
 	license         string
 	owner           string
@@ -39,7 +38,7 @@ type initScaffolder struct {
 }
 
 // NewInitScaffolder returns a new Scaffolder for project initialization operations
-func NewInitScaffolder(config model.Config, license, owner string) Scaffolder {
+func NewInitScaffolder(config config.Config, license, owner string) Scaffolder {
 	return &initScaffolder{
 		config:          config,
 		boilerplatePath: hack.DefaultBoilerplatePath,
@@ -61,14 +60,14 @@ func (s *initScaffolder) Scaffold() error {
 	// The boilerplate file needs to be scaffolded as a separate step as it is going to
 	// be used by the rest of the files, even those scaffolded in this command call.
 	scaffold := machinery.NewScaffold(s.fs,
-		machinery.WithConfig(&s.config),
+		machinery.WithConfig(s.config),
 	)
 
 	bpFile := &hack.Boilerplate{
 		License: s.license,
 		Owner:   s.owner,
 	}
-	bpFile.Path = filepath.Join(s.config.Repo, s.boilerplatePath)
+	bpFile.Path = s.boilerplatePath
 	if err := scaffold.Execute(bpFile); err != nil {
 		return err
 	}
@@ -80,7 +79,7 @@ func (s *initScaffolder) Scaffold() error {
 
 	// Initialize the machinery.Scaffold that will write the files to disk
 	scaffold = machinery.NewScaffold(s.fs,
-		machinery.WithConfig(&s.config),
+		machinery.WithConfig(s.config),
 		machinery.WithBoilerplate(string(boilerplate)),
 	)
 

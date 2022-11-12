@@ -20,6 +20,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"csibuilder/pkg/config/v1"
 	"csibuilder/pkg/model"
 )
 
@@ -80,10 +81,10 @@ var _ = Describe("injector", func() {
 
 	Context("injectInto", func() {
 		Context("Config", func() {
-			var c *model.Config
+			var c *v1.Config
 
 			BeforeEach(func() {
-				c = &model.Config{}
+				c = &v1.Config{}
 			})
 
 			Context("Repository", func() {

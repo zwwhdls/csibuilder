@@ -17,9 +17,9 @@
 package internal
 
 import (
-	"csibuilder/pkg/machinery"
 	"fmt"
-	"path/filepath"
+
+	"csibuilder/pkg/machinery"
 )
 
 var _ machinery.Template = &GoMod{}
@@ -35,13 +35,9 @@ type GoMod struct {
 // SetTemplateDefaults implements file.Template
 func (f *GoMod) SetTemplateDefaults() error {
 	if f.Path == "" {
-		f.Path = filepath.Join(f.Repo, "go.mod")
+		f.Path = "go.mod"
 	}
 	fmt.Println(f.Path)
-
-	if f.TemplatePath == "" {
-		return fmt.Errorf("can not get template path")
-	}
 
 	body, err := tplFS.ReadFile("templates/go.mod.tpl")
 	if err != nil {

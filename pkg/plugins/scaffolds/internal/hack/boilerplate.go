@@ -33,7 +33,6 @@ var _ machinery.Template = &Boilerplate{}
 type Boilerplate struct {
 	machinery.TemplateMixin
 	machinery.BoilerplateMixin
-	machinery.RepositoryMixin
 
 	// License is the License type to write
 	License string
@@ -66,7 +65,7 @@ func (f Boilerplate) Validate() error {
 // SetTemplateDefaults implements file.Template
 func (f *Boilerplate) SetTemplateDefaults() error {
 	if f.Path == "" {
-		f.Path = filepath.Join(f.Repo, DefaultBoilerplatePath)
+		f.Path = DefaultBoilerplatePath
 	}
 
 	if f.License == "" {

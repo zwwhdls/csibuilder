@@ -17,9 +17,9 @@
 package internal
 
 import (
-	"csibuilder/pkg/machinery"
 	"fmt"
-	"path/filepath"
+
+	"csibuilder/pkg/machinery"
 )
 
 var _ machinery.Template = &Dockerfile{}
@@ -36,12 +36,9 @@ type Dockerfile struct {
 // SetTemplateDefaults implements file.Template
 func (f *Dockerfile) SetTemplateDefaults() error {
 	if f.Path == "" {
-		f.Path = filepath.Join(f.Repo, "Dockerfile")
+		f.Path = "Dockerfile"
 	}
 	fmt.Println(f.Path)
-	if f.TemplatePath == "" {
-		return fmt.Errorf("can not get template path")
-	}
 
 	body, err := tplFS.ReadFile("templates/Dockerfile.tpl")
 	if err != nil {
