@@ -17,13 +17,16 @@
 package machinery
 
 import (
-	"csibuilder/pkg/model"
 	"errors"
+	"os"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
 	"github.com/spf13/afero"
-	"os"
+
+	"csibuilder/pkg/config/v1"
+	"csibuilder/pkg/model"
 )
 
 var _ = Describe("Scaffold", func() {
@@ -63,7 +66,7 @@ var _ = Describe("Scaffold", func() {
 		})
 
 		It("should succeed with config option", func() {
-			cfg := &model.Config{}
+			cfg := &v1.Config{}
 
 			s := NewScaffold(Filesystem{FS: afero.NewMemMapFs()}, WithConfig(cfg))
 			Expect(s.fs).NotTo(BeNil())

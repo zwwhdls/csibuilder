@@ -17,8 +17,9 @@
 package main
 
 import (
-	"github.com/spf13/cobra"
 	"log"
+
+	"github.com/spf13/cobra"
 )
 
 func main() {
@@ -32,7 +33,7 @@ func main() {
 	}
 	createCmd := newCreateCmd()
 	initCmd := newInitCmd()
-	cmd.AddCommand(createCmd)
+	cmd.AddCommand(createCmd.Command)
 	cmd.AddCommand(initCmd)
 	if err := cmd.Execute(); err != nil {
 		log.Fatal(err)

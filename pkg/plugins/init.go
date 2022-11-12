@@ -18,18 +18,21 @@ package plugins
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
+	"strings"
+	"unicode"
 
 	"github.com/spf13/pflag"
 
+	"csibuilder/pkg/config"
 	"csibuilder/pkg/machinery"
-	"csibuilder/pkg/model"
 	"csibuilder/pkg/plugins/scaffolds"
 	"csibuilder/pkg/util"
 )
 
 type InitSubcommand struct {
-	config model.Config
+	config config.Config
 	// For help text.
 	commandName string
 
@@ -59,7 +62,7 @@ func (p *InitSubcommand) BindFlags(fs *pflag.FlagSet) {
 		"defaults to the go package of the current working directory.")
 }
 
-func (p *InitSubcommand) InjectConfig(c model.Config) error {
+func (p *InitSubcommand) InjectConfig(c config.Config) error {
 	p.config = c
 
 	// Try to guess repository if flag is not set.
@@ -76,12 +79,7 @@ func (p *InitSubcommand) InjectConfig(c model.Config) error {
 
 func (p *InitSubcommand) PreScaffold(machinery.Filesystem) error {
 	// Check if the current directory has not files or directories which does not allow to init the project
-	// inject template path
-	curPath, err := filepath.Abs("")
-	if err != nil {
-		return fmt.Errorf("can not get abs path: %s", err)
-	}
-	return p.config.SetTemplatePath(filepath.Join(curPath, "pkg/templates"))
+	return checkDir()
 }
 
 func (p *InitSubcommand) Scaffold(fs machinery.Filesystem) error {
@@ -107,5 +105,59 @@ func (p *InitSubcommand) PostScaffold() error {
 	}
 
 	fmt.Printf("Next: define a csi with:\n$ %s create api\n", p.commandName)
+	return nil
+}
+
+// checkDir will return error if the current directory has files which are not allowed.
+// Note that, it is expected that the directory to scaffold the project is cleaned.
+// Otherwise, it might face issues to do the scaffold.
+func checkDir() error {
+	err := filepath.Walk(".",
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			// Allow directory trees starting with '.'
+			if info.IsDir() && strings.HasPrefix(info.Name(), ".") && info.Name() != "." {
+				return filepath.SkipDir
+			}
+			// Allow files starting with '.'
+			if strings.HasPrefix(info.Name(), ".") {
+				return nil
+			}
+			// Allow files ending with '.md' extension
+			if strings.HasSuffix(info.Name(), ".md") && !info.IsDir() {
+				return nil
+			}
+			// Allow capitalized files except PROJECT
+			isCapitalized := true
+			for _, l := range info.Name() {
+				if !unicode.IsUpper(l) {
+					isCapitalized = false
+					break
+				}
+			}
+			if isCapitalized && info.Name() != "PROJECT" {
+				return nil
+			}
+			// Allow files in the following list
+			allowedFiles := []string{
+				"go.mod", // user might run `go mod init` instead of providing the `--flag` at init
+				"go.sum", // auto-generated file related to go.mod
+			}
+			for _, allowedFile := range allowedFiles {
+				if info.Name() == allowedFile {
+					return nil
+				}
+			}
+			// Do not allow any other file
+			return fmt.Errorf(
+				"target directory is not empty (only %s, files and directories with the prefix \".\", "+
+					"files with the suffix \".md\" or capitalized files name are allowed); "+
+					"found existing file %q", strings.Join(allowedFiles, ", "), path)
+		})
+	if err != nil {
+		return err
+	}
 	return nil
 }

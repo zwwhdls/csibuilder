@@ -17,15 +17,18 @@
 package scaffolds
 
 import (
+	"fmt"
+	"path/filepath"
+
+	"github.com/spf13/afero"
+
+	"csibuilder/pkg/config"
 	"csibuilder/pkg/machinery"
 	"csibuilder/pkg/model"
 	"csibuilder/pkg/plugins/scaffolds/internal"
 	"csibuilder/pkg/plugins/scaffolds/internal/csi"
 	"csibuilder/pkg/plugins/scaffolds/internal/deploy"
 	"csibuilder/pkg/plugins/scaffolds/internal/hack"
-	"fmt"
-	"github.com/spf13/afero"
-	"path/filepath"
 )
 
 // apiScaffolder contains configuration for generating scaffolding for Go type
@@ -37,11 +40,11 @@ type apiScaffolder struct {
 	// force indicates whether to scaffold controller files even if it exists or not
 	force    bool
 	resource model.Resource
-	config   model.Config
+	config   config.Config
 }
 
 // NewAPIScaffolder returns a new Scaffolder for API/controller creation operations
-func NewAPIScaffolder(conf model.Config, res model.Resource, force bool) Scaffolder {
+func NewAPIScaffolder(conf config.Config, res model.Resource, force bool) Scaffolder {
 	return &apiScaffolder{
 		force:    force,
 		resource: res,
@@ -56,7 +59,7 @@ func (s *apiScaffolder) InjectFS(filesystem machinery.Filesystem) {
 func (s *apiScaffolder) Scaffold() error {
 	fmt.Println("Writing scaffold for you to edit...")
 
-	bpFilePath := filepath.Join(s.config.Repo, hack.DefaultBoilerplatePath)
+	bpFilePath := filepath.Join(hack.DefaultBoilerplatePath)
 	boilerplate, err := afero.ReadFile(s.fs.FS, bpFilePath)
 	if err != nil {
 		return err
@@ -64,7 +67,7 @@ func (s *apiScaffolder) Scaffold() error {
 
 	scaffold := machinery.NewScaffold(s.fs,
 		machinery.WithResource(&s.resource),
-		machinery.WithConfig(&s.config),
+		machinery.WithConfig(s.config),
 		machinery.WithBoilerplate(string(boilerplate)),
 	)
 

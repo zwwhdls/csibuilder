@@ -17,9 +17,10 @@
 package csi
 
 import (
-	"csibuilder/pkg/machinery"
 	"fmt"
 	"path/filepath"
+
+	"csibuilder/pkg/machinery"
 )
 
 var _ machinery.Template = &Driver{}
@@ -37,14 +38,10 @@ type Driver struct {
 
 func (c *Driver) SetTemplateDefaults() error {
 	if c.Path == "" {
-		c.Path = filepath.Join(c.Repo, "pkg/csi", "driver.go")
+		c.Path = filepath.Join("pkg/csi", "driver.go")
 	}
 	c.Path = c.Resource.Replacer().Replace(c.Path)
 	fmt.Println(c.Path)
-
-	if c.TemplatePath == "" {
-		return fmt.Errorf("can not get template path")
-	}
 
 	body, err := tplFS.ReadFile("templates/driver.go.tpl")
 	if err != nil {

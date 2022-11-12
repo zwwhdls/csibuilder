@@ -17,17 +17,22 @@
 package plugins
 
 import (
+	"fmt"
+
+	"github.com/spf13/pflag"
+
+	"csibuilder/pkg/config"
 	"csibuilder/pkg/machinery"
 	"csibuilder/pkg/model"
 	"csibuilder/pkg/plugins/scaffolds"
 	"csibuilder/pkg/util"
-	"fmt"
-	"github.com/spf13/pflag"
-	"path/filepath"
 )
 
+// DefaultMainPath is default file path of main.go
+const DefaultMainPath = "main.go"
+
 type CreateAPISubcommand struct {
-	config   *model.Config
+	config   config.Config
 	resource *model.Resource
 
 	// Check if we have to scaffold resource and/or controller
@@ -48,32 +53,34 @@ func (p *CreateAPISubcommand) InjectResource(res *model.Resource) error {
 	return nil
 }
 
-func (p *CreateAPISubcommand) InjectConfig(conf *model.Config) error {
+func (p *CreateAPISubcommand) InjectConfig(conf config.Config) error {
 	p.config = conf
 
 	// Try to guess repository if flag is not set.
-	if p.repo == "" {
+	if conf.GetRepository() == "" {
 		repoPath, err := util.FindCurrentRepo()
 		if err != nil {
 			return fmt.Errorf("error finding current repository: %v", err)
 		}
 		p.repo = repoPath
+		conf.SetRepository(repoPath)
 	}
+	p.repo = conf.GetRepository()
 
-	return p.config.SetRepository(p.repo)
+	return nil
 }
 
 func (p *CreateAPISubcommand) PreScaffold(machinery.Filesystem) error {
-	// inject template path
-	curPath, err := filepath.Abs("")
-	if err != nil {
-		return fmt.Errorf("can not get abs path: %s", err)
-	}
-	return p.config.SetTemplatePath(filepath.Join(curPath, "pkg/templates"))
+	// check if main.go is present in the root directory
+	//if _, err := os.Stat(DefaultMainPath); os.IsNotExist(err) {
+	//	return fmt.Errorf("%s file should present in the root directory", DefaultMainPath)
+	//}
+
+	return nil
 }
 
 func (p *CreateAPISubcommand) Scaffold(fs machinery.Filesystem) error {
-	scaffolder := scaffolds.NewAPIScaffolder(*p.config, *p.resource, p.force)
+	scaffolder := scaffolds.NewAPIScaffolder(p.config, *p.resource, p.force)
 	scaffolder.InjectFS(fs)
 	return scaffolder.Scaffold()
 }
@@ -83,6 +90,4 @@ func (p *CreateAPISubcommand) PostScaffold() error {
 }
 
 func (p *CreateAPISubcommand) BindFlags(fs *pflag.FlagSet) {
-	fs.StringVar(&p.repo, "repo", "", "name to use for go module (e.g., github.com/user/repo), "+
-		"defaults to the go package of the current working directory.")
 }

@@ -17,11 +17,15 @@
 package main
 
 import (
-	"csibuilder/pkg/machinery"
-	"csibuilder/pkg/model"
-	"csibuilder/pkg/plugins"
+	"fmt"
+
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
+
+	yamlstore "csibuilder/pkg/config/store"
+	v1 "csibuilder/pkg/config/v1"
+	"csibuilder/pkg/machinery"
+	"csibuilder/pkg/plugins"
 )
 
 func newInitCmd() *cobra.Command {
@@ -32,9 +36,9 @@ func newInitCmd() *cobra.Command {
 		Long:       `Scaffold a CSI Driver.`,
 	}
 
-	var (
-		conf model.Config
-	)
+	conf := &v1.Config{
+		Version: v1.VersionV1,
+	}
 	api := plugins.InitSubcommand{}
 	api.BindFlags(cmd.Flags())
 	fs := machinery.Filesystem{FS: afero.NewOsFs()}
@@ -47,6 +51,17 @@ func newInitCmd() *cobra.Command {
 	}
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		return api.Scaffold(fs)
+	}
+	cmd.PostRunE = func(cmd *cobra.Command, args []string) error {
+		// create config file
+		cfg := yamlstore.New(fs)
+		if err := cfg.New(v1.VersionV1, conf); err != nil {
+			return fmt.Errorf("unable to new configuration file: %w", err)
+		}
+		if err := cfg.Save(); err != nil {
+			return fmt.Errorf("unable to save configuration file: %w", err)
+		}
+		return nil
 	}
 	return cmd
 }

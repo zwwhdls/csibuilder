@@ -16,12 +16,15 @@
 
 package machinery
 
-import "csibuilder/pkg/model"
+import (
+	"csibuilder/pkg/config"
+	"csibuilder/pkg/model"
+)
 
 // injector is used to inject certain fields to file templates.
 type injector struct {
 	// config is the project configuration
-	config *model.Config
+	config config.Config
 
 	// resource contains the information of the CSI that is being scaffolded.
 	resource *model.Resource
@@ -36,9 +39,6 @@ func (i injector) injectInto(builder Builder) {
 	if i.config != nil {
 		if builderWithRepository, hasRepository := builder.(HasRepository); hasRepository {
 			builderWithRepository.InjectRepository(i.config.GetRepository())
-		}
-		if builderWithTemplatePath, hasTemplatePath := builder.(HasTemplatePath); hasTemplatePath {
-			builderWithTemplatePath.InjectTemplatePath(i.config.GetTemplatePath())
 		}
 	}
 	// Inject resource

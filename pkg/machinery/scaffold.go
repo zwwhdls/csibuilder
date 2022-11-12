@@ -18,11 +18,13 @@ package machinery
 
 import (
 	"bytes"
-	"csibuilder/pkg/model"
 	"fmt"
 	"os"
 	"path/filepath"
 	"text/template"
+
+	"csibuilder/pkg/config"
+	"csibuilder/pkg/model"
 
 	"github.com/spf13/afero"
 	"golang.org/x/tools/imports"
@@ -102,7 +104,7 @@ func WithBoilerplate(boilerplate string) ScaffoldOption {
 }
 
 // WithConfig provides the project configuration to the Scaffold
-func WithConfig(cfg *model.Config) ScaffoldOption {
+func WithConfig(cfg config.Config) ScaffoldOption {
 	return func(s *Scaffold) {
 		s.injector.config = cfg
 
