@@ -44,7 +44,7 @@ func (n *nodeService) NodeUnstageVolume(ctx context.Context, request *csi.NodeUn
 	return nil, status.Error(codes.Unimplemented, "")
 }
 
-// NodePublishVolume: mounts the volume on the node.
+// NodePublishVolume mounts the volume on the node.
 func (n *nodeService) NodePublishVolume(ctx context.Context, request *csi.NodePublishVolumeRequest) (*csi.NodePublishVolumeResponse, error) {
 	volumeID := request.GetVolumeId()
 	if len(volumeID) == 0 {
@@ -65,12 +65,25 @@ func (n *nodeService) NodePublishVolume(ctx context.Context, request *csi.NodePu
 		return nil, status.Error(codes.InvalidArgument, "Volume capability not supported")
 	}
 
+	readOnly := false
+	if request.GetReadonly() || request.VolumeCapability.AccessMode.GetMode() == csi.VolumeCapability_AccessMode_MULTI_NODE_READER_ONLY {
+		readOnly = true
+	}
+
+	options := make(map[string]string)
+	if m := volCap.GetMount(); m != nil {
+		for _, f := range m.MountFlags {
+			// get mountOptions from PV.spec.mountOptions
+			options[f] = ""
+		}
+	}
+
 	// TODO modify your volume mount logic here
 
 	return &csi.NodePublishVolumeResponse{}, nil
 }
 
-// NodeUnpublishVolume: unmount the volume from the target path
+// NodeUnpublishVolume unmount the volume from the target path
 func (n *nodeService) NodeUnpublishVolume(ctx context.Context, request *csi.NodeUnpublishVolumeRequest) (*csi.NodeUnpublishVolumeResponse, error) {
 	target := request.GetTargetPath()
 	if len(target) == 0 {
@@ -82,22 +95,22 @@ func (n *nodeService) NodeUnpublishVolume(ctx context.Context, request *csi.Node
 	return &csi.NodeUnpublishVolumeResponse{}, nil
 }
 
-// NodeGetVolumeStats: get the volume stats
+// NodeGetVolumeStats get the volume stats
 func (n *nodeService) NodeGetVolumeStats(ctx context.Context, request *csi.NodeGetVolumeStatsRequest) (*csi.NodeGetVolumeStatsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "")
 }
 
-// NodeExpandVolume: expand the volume
+// NodeExpandVolume expand the volume
 func (n *nodeService) NodeExpandVolume(ctx context.Context, request *csi.NodeExpandVolumeRequest) (*csi.NodeExpandVolumeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "")
 }
 
-// NodeGetCapabilities: get the node capabilities
+// NodeGetCapabilities get the node capabilities
 func (n *nodeService) NodeGetCapabilities(ctx context.Context, request *csi.NodeGetCapabilitiesRequest) (*csi.NodeGetCapabilitiesResponse, error) {
 	return &csi.NodeGetCapabilitiesResponse{}, nil
 }
 
-// NodeGetInfo: get the node info
+// NodeGetInfo get the node info
 func (n *nodeService) NodeGetInfo(ctx context.Context, request *csi.NodeGetInfoRequest) (*csi.NodeGetInfoResponse, error) {
 	return &csi.NodeGetInfoResponse{NodeId: n.nodeID}, nil
 }

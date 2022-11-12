@@ -27,6 +27,8 @@ import (
 	"csibuilder/pkg/plugins/scaffolds/internal/hack"
 )
 
+const imageName = "csi:latest"
+
 type initScaffolder struct {
 	config          config.Config
 	boilerplatePath string
@@ -54,7 +56,7 @@ func (s *initScaffolder) InjectFS(fs machinery.Filesystem) {
 
 // Scaffold implements cmdutil.Scaffolder
 func (s *initScaffolder) Scaffold() error {
-	fmt.Println("Init CSI Project for you...")
+	fmt.Println("Init CSI Driver Project for you...")
 
 	// Initialize the machinery.Scaffold that will write the boilerplate file to disk
 	// The boilerplate file needs to be scaffolded as a separate step as it is going to
@@ -86,5 +88,9 @@ func (s *initScaffolder) Scaffold() error {
 	return scaffold.Execute(
 		&internal.GoMod{},
 		&hack.Boilerplate{},
+		&internal.Makefile{
+			Image: imageName,
+		},
+		&internal.GitIgnore{},
 	)
 }

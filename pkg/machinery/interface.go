@@ -17,8 +17,9 @@
 package machinery
 
 import (
-	"csibuilder/pkg/model"
 	"text/template"
+
+	"csibuilder/pkg/model"
 )
 
 type Builder interface {
@@ -59,6 +60,12 @@ type UseCustomFuncMap interface {
 type HasRepository interface {
 	// InjectRepository sets the template repository
 	InjectRepository(string)
+}
+
+// HasVersion allows the version to be used on a template
+type HasVersion interface {
+	// InjectGoVersion sets the template repository
+	InjectGoVersion(string)
 }
 
 // HasResource allows a resource to be used on a template

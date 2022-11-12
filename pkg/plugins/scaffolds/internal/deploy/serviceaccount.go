@@ -17,8 +17,6 @@
 package deploy
 
 import (
-	"fmt"
-
 	"csibuilder/pkg/machinery"
 )
 
@@ -38,7 +36,6 @@ func (f *ServiceAccountYaml) SetTemplateDefaults() error {
 	if f.Path == "" {
 		f.Path = "deploy/serviceaccount.yaml"
 	}
-	fmt.Println(f.Path)
 
 	body, err := tplFS.ReadFile("templates/serviceaccount.yaml.tpl")
 	if err != nil {

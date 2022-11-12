@@ -42,9 +42,6 @@ type CreateAPISubcommand struct {
 
 	// force indicates that the resource should be created even if it already exists
 	force bool
-
-	// runMake indicates whether to run make or not after scaffolding APIs
-	runMake bool
 }
 
 func (p *CreateAPISubcommand) InjectResource(res *model.Resource) error {
@@ -71,11 +68,11 @@ func (p *CreateAPISubcommand) InjectConfig(conf config.Config) error {
 }
 
 func (p *CreateAPISubcommand) PreScaffold(machinery.Filesystem) error {
-	// check if main.go is present in the root directory
-	//if _, err := os.Stat(DefaultMainPath); os.IsNotExist(err) {
-	//	return fmt.Errorf("%s file should present in the root directory", DefaultMainPath)
-	//}
-
+	// check params
+	// csi name can not be null
+	if p.resource.CSIName == "" {
+		return fmt.Errorf("csi name can not be null")
+	}
 	return nil
 }
 
@@ -86,6 +83,11 @@ func (p *CreateAPISubcommand) Scaffold(fs machinery.Filesystem) error {
 }
 
 func (p *CreateAPISubcommand) PostScaffold() error {
+	err := util.RunCmd("Update dependencies", "go", "mod", "tidy")
+	if err != nil {
+		return err
+	}
+	fmt.Println("Scaffolding complete. Enjoy your new project!")
 	return nil
 }
 

@@ -38,6 +38,8 @@ type Version struct {
 	Number int
 	// Stage indicates stability.
 	Stage model.Stage
+	// go version
+	GoVersion string
 }
 
 // Parse parses version inline, assuming it adheres to format: [1-9][0-9]*(-(alpha|beta))?

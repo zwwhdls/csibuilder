@@ -4,8 +4,6 @@ github.com/container-storage-interface/spec/lib/go/csi
 # github.com/fsnotify/fsnotify v1.4.9
 ## explicit; go 1.13
 github.com/fsnotify/fsnotify
-# github.com/gobuffalo/flect v0.2.5
-## explicit; go 1.13
 # github.com/golang/protobuf v1.5.2
 ## explicit; go 1.9
 github.com/golang/protobuf/proto

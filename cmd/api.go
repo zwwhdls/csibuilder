@@ -73,6 +73,9 @@ func newCreateCmd() *CreateCmd {
 	createCmd.Command.RunE = func(cmd *cobra.Command, args []string) error {
 		return api.Scaffold(fs)
 	}
+	createCmd.Command.PostRunE = func(cmd *cobra.Command, args []string) error {
+		return api.PostScaffold()
+	}
 	return createCmd
 }
 

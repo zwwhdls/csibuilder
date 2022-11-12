@@ -17,7 +17,6 @@
 package csi
 
 import (
-	"fmt"
 	"path/filepath"
 
 	"csibuilder/pkg/machinery"
@@ -41,7 +40,6 @@ func (c *Driver) SetTemplateDefaults() error {
 		c.Path = filepath.Join("pkg/csi", "driver.go")
 	}
 	c.Path = c.Resource.Replacer().Replace(c.Path)
-	fmt.Println(c.Path)
 
 	body, err := tplFS.ReadFile("templates/driver.go.tpl")
 	if err != nil {

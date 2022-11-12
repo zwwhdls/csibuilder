@@ -90,6 +90,20 @@ func (m *RepositoryMixin) InjectRepository(repository string) {
 	}
 }
 
+// GoVersionMixin provides templates with a injectable go version field
+type VersionMixin struct {
+	GoVersion string
+	Number    int
+	Stage     model.Stage
+}
+
+// InjectGoVersion implements HasGoVersion
+func (m *VersionMixin) InjectGoVersion(goVersion string) {
+	if m.GoVersion == "" {
+		m.GoVersion = goVersion
+	}
+}
+
 // ProjectNameMixin provides templates with an injectable project name field.
 type ProjectNameMixin struct {
 	ProjectName string

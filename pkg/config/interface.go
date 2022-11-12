@@ -25,6 +25,12 @@ type Config interface {
 
 	/* String fields */
 
+	// SetGoVersion sets the project Go version.
+	SetGoVersion(goVersion string) error
+
+	// GetGoVersion returns the project Go version.
+	GetGoVersion() string
+
 	// GetRepository returns the project repository.
 	GetRepository() string
 	// SetRepository sets the project repository.

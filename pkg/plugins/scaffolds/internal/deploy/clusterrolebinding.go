@@ -17,8 +17,6 @@
 package deploy
 
 import (
-	"fmt"
-
 	"csibuilder/pkg/machinery"
 )
 
@@ -38,7 +36,6 @@ func (f *ClusterRoleBindingYaml) SetTemplateDefaults() error {
 	if f.Path == "" {
 		f.Path = "deploy/clusterrolebinding.yaml"
 	}
-	fmt.Println(f.Path)
 
 	body, err := tplFS.ReadFile("templates/clusterrolebinding.yaml.tpl")
 	if err != nil {

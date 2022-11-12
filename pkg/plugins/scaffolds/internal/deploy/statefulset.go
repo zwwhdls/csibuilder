@@ -17,8 +17,6 @@
 package deploy
 
 import (
-	"fmt"
-
 	"csibuilder/pkg/machinery"
 )
 
@@ -38,7 +36,6 @@ func (f *StatefulSetYaml) SetTemplateDefaults() error {
 	if f.Path == "" {
 		f.Path = "deploy/statefulset.yaml"
 	}
-	fmt.Println(f.Path)
 
 	body, err := tplFS.ReadFile("templates/statefulset.yaml.tpl")
 	if err != nil {

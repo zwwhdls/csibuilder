@@ -17,7 +17,6 @@
 package csi
 
 import (
-	"fmt"
 	"path/filepath"
 
 	"csibuilder/pkg/machinery"
@@ -41,7 +40,6 @@ func (c *Version) SetTemplateDefaults() error {
 		c.Path = filepath.Join("pkg/csi", "version.go")
 	}
 	c.Path = c.Resource.Replacer().Replace(c.Path)
-	fmt.Println(c.Path)
 
 	body, err := tplFS.ReadFile("templates/version.go.tpl")
 	if err != nil {

@@ -29,8 +29,9 @@ type Config struct {
 	// Version
 	Version config.Version `json:"version"`
 
-	Name string
-	Repo string
+	Name      string
+	Repo      string
+	GoVersion string
 }
 
 var _ config.Config = &Config{}
@@ -57,6 +58,15 @@ func (c *Config) SetRepository(repository string) error {
 
 func (c *Config) GetVersion() config.Version {
 	return c.Version
+}
+
+func (c *Config) SetGoVersion(goVersion string) error {
+	c.GoVersion = goVersion
+	return nil
+}
+
+func (c *Config) GetGoVersion() string {
+	return c.GoVersion
 }
 
 func (c *Config) GetProjectName() string {

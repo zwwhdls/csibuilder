@@ -18,7 +18,6 @@ package csi
 
 import (
 	"embed"
-	"fmt"
 
 	"csibuilder/pkg/machinery"
 )
@@ -44,7 +43,6 @@ func (c *Controller) SetTemplateDefaults() error {
 		c.Path = "pkg/csi/controller.go"
 	}
 	c.Path = c.Resource.Replacer().Replace(c.Path)
-	fmt.Println(c.Path)
 
 	body, err := tplFS.ReadFile("templates/controller.go.tpl")
 	if err != nil {
