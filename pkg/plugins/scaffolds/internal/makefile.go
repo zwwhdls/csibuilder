@@ -20,24 +20,29 @@ import (
 	"csibuilder/pkg/machinery"
 )
 
-var _ machinery.Template = &Dockerfile{}
+var _ machinery.Template = &Makefile{}
 
-// Dockerfile scaffolds Dockerfile file
-type Dockerfile struct {
+// Makefile scaffolds Makefile file
+type Makefile struct {
 	machinery.TemplateMixin
 	machinery.RepositoryMixin
 	machinery.BoilerplateMixin
 
 	Force bool
+	// Image is csi manager image name
+	Image string
 }
 
 // SetTemplateDefaults implements file.Template
-func (f *Dockerfile) SetTemplateDefaults() error {
+func (f *Makefile) SetTemplateDefaults() error {
 	if f.Path == "" {
-		f.Path = "Dockerfile"
+		f.Path = "Makefile"
 	}
 
-	body, err := tplFS.ReadFile("templates/Dockerfile.tpl")
+	if f.Image == "" {
+		f.Image = "csi:latest"
+	}
+	body, err := tplFS.ReadFile("templates/Makefile.tpl")
 	if err != nil {
 		return err
 	}

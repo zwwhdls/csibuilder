@@ -17,8 +17,6 @@
 package csi
 
 import (
-	"fmt"
-
 	"csibuilder/pkg/machinery"
 )
 
@@ -40,7 +38,6 @@ func (c *Identity) SetTemplateDefaults() error {
 		c.Path = "pkg/csi/identity.go"
 	}
 	c.Path = c.Resource.Replacer().Replace(c.Path)
-	fmt.Println(c.Path)
 
 	body, err := tplFS.ReadFile("templates/identity.go.tpl")
 	if err != nil {

@@ -5,8 +5,8 @@ LD_FLAGS=-ldflags " \
     -X main.gitCommit=$(shell git rev-parse HEAD) \
     -X main.buildDate=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ') \
     "
+
 .PHONY: build
-.PHONY: test
 build:
 	go build $(LD_FLAGS) -o bin/csibuilder ./cmd/
 

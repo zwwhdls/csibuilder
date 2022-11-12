@@ -20,10 +20,10 @@ import (
 	"csibuilder/pkg/machinery"
 )
 
-var _ machinery.Template = &Dockerfile{}
+var _ machinery.Template = &GitIgnore{}
 
-// Dockerfile scaffolds Dockerfile file
-type Dockerfile struct {
+// GitIgnore scaffolds .gitignore file
+type GitIgnore struct {
 	machinery.TemplateMixin
 	machinery.RepositoryMixin
 	machinery.BoilerplateMixin
@@ -32,12 +32,12 @@ type Dockerfile struct {
 }
 
 // SetTemplateDefaults implements file.Template
-func (f *Dockerfile) SetTemplateDefaults() error {
+func (f *GitIgnore) SetTemplateDefaults() error {
 	if f.Path == "" {
-		f.Path = "Dockerfile"
+		f.Path = ".gitignore"
 	}
 
-	body, err := tplFS.ReadFile("templates/Dockerfile.tpl")
+	body, err := tplFS.ReadFile("templates/gitignore.tpl")
 	if err != nil {
 		return err
 	}

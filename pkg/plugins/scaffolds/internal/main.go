@@ -18,7 +18,6 @@ package internal
 
 import (
 	"embed"
-	"fmt"
 
 	"csibuilder/pkg/machinery"
 )
@@ -44,7 +43,6 @@ func (f *Main) SetTemplateDefaults() error {
 		f.Path = "main.go"
 	}
 	f.Path = f.Resource.Replacer().Replace(f.Path)
-	fmt.Println(f.Path)
 
 	body, err := tplFS.ReadFile("templates/main.go.tpl")
 	if err != nil {

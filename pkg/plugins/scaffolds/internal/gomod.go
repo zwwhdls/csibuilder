@@ -17,8 +17,6 @@
 package internal
 
 import (
-	"fmt"
-
 	"csibuilder/pkg/machinery"
 )
 
@@ -28,6 +26,7 @@ var _ machinery.Template = &GoMod{}
 type GoMod struct {
 	machinery.TemplateMixin
 	machinery.RepositoryMixin
+	machinery.VersionMixin
 
 	Force bool
 }
@@ -37,7 +36,6 @@ func (f *GoMod) SetTemplateDefaults() error {
 	if f.Path == "" {
 		f.Path = "go.mod"
 	}
-	fmt.Println(f.Path)
 
 	body, err := tplFS.ReadFile("templates/go.mod.tpl")
 	if err != nil {

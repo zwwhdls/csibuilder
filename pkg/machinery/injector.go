@@ -40,6 +40,9 @@ func (i injector) injectInto(builder Builder) {
 		if builderWithRepository, hasRepository := builder.(HasRepository); hasRepository {
 			builderWithRepository.InjectRepository(i.config.GetRepository())
 		}
+		if builderWithVersion, hasVersion := builder.(HasVersion); hasVersion {
+			builderWithVersion.InjectGoVersion(i.config.GetGoVersion())
+		}
 	}
 	// Inject resource
 	if i.resource != nil {

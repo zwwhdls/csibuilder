@@ -61,7 +61,7 @@ func newInitCmd() *cobra.Command {
 		if err := cfg.Save(); err != nil {
 			return fmt.Errorf("unable to save configuration file: %w", err)
 		}
-		return nil
+		return api.PostScaffold()
 	}
 	return cmd
 }

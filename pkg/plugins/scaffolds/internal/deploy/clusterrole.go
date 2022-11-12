@@ -18,7 +18,6 @@ package deploy
 
 import (
 	"embed"
-	"fmt"
 
 	"csibuilder/pkg/machinery"
 )
@@ -43,7 +42,6 @@ func (f *ClusterRoleYaml) SetTemplateDefaults() error {
 	if f.Path == "" {
 		f.Path = "deploy/clusterrole.yaml"
 	}
-	fmt.Println(f.Path)
 
 	body, err := tplFS.ReadFile("templates/clusterrole.yaml.tpl")
 	if err != nil {

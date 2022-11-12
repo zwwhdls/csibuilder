@@ -1,6 +1,6 @@
 {{ .Boilerplate }}
 
-package csi
+package main
 
 import (
 	"flag"

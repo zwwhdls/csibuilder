@@ -41,16 +41,16 @@ type InitSubcommand struct {
 	owner   string
 
 	// go config options
-	repo string
+	repo      string
+	goVersion string
 
 	// flags
-	fetchDeps          bool
 	skipGoVersionCheck bool
 }
 
 func (p *InitSubcommand) BindFlags(fs *pflag.FlagSet) {
-	// dependency args
-	fs.BoolVar(&p.fetchDeps, "fetch-deps", true, "ensure dependencies are downloaded")
+	// go version
+	fs.StringVar(&p.goVersion, "goversion", "1.18", "go version, default 1.18")
 
 	// boilerplate args
 	fs.StringVar(&p.license, "license", "apache2",
@@ -63,6 +63,7 @@ func (p *InitSubcommand) BindFlags(fs *pflag.FlagSet) {
 }
 
 func (p *InitSubcommand) InjectConfig(c config.Config) error {
+	p.commandName = "csibuilder"
 	p.config = c
 
 	// Try to guess repository if flag is not set.
@@ -74,11 +75,16 @@ func (p *InitSubcommand) InjectConfig(c config.Config) error {
 		p.repo = repoPath
 	}
 
+	if p.goVersion == "" {
+		p.goVersion = "1.18"
+	}
+	p.config.SetGoVersion(p.goVersion)
+
 	return p.config.SetRepository(p.repo)
 }
 
 func (p *InitSubcommand) PreScaffold(machinery.Filesystem) error {
-	// Check if the current directory has not files or directories which does not allow to init the project
+	//Check if the current directory has not files or directories which does not allow to init the project
 	return checkDir()
 }
 
@@ -90,11 +96,6 @@ func (p *InitSubcommand) Scaffold(fs machinery.Filesystem) error {
 		return err
 	}
 
-	if !p.fetchDeps {
-		fmt.Println("Skipping fetching dependencies.")
-		return nil
-	}
-
 	return nil
 }
 
@@ -104,7 +105,7 @@ func (p *InitSubcommand) PostScaffold() error {
 		return err
 	}
 
-	fmt.Printf("Next: define a csi with:\n$ %s create api\n", p.commandName)
+	fmt.Printf("Next: define a csi driver with:\n$ %s create\n", p.commandName)
 	return nil
 }
 

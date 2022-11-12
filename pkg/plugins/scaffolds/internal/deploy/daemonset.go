@@ -17,8 +17,6 @@
 package deploy
 
 import (
-	"fmt"
-
 	"csibuilder/pkg/machinery"
 )
 
@@ -38,7 +36,6 @@ func (f *DaemonSetYaml) SetTemplateDefaults() error {
 	if f.Path == "" {
 		f.Path = "deploy/daemonset.yaml"
 	}
-	fmt.Println(f.Path)
 
 	body, err := tplFS.ReadFile("templates/daemonset.yaml.tpl")
 	if err != nil {
