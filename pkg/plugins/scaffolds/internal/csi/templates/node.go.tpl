@@ -28,6 +28,8 @@ type nodeService struct {
 	nodeID string
 }
 
+var _ csi.NodeServer = &nodeService{}
+
 func newNodeService(nodeID string) nodeService {
 	return nodeService{
 		nodeID: nodeID,
@@ -77,6 +79,10 @@ func (n *nodeService) NodePublishVolume(ctx context.Context, request *csi.NodePu
 			options[f] = ""
 		}
 	}
+
+    if readOnly {
+         // Todo add readonly in your mount options
+    }
 
 	// TODO modify your volume mount logic here
 
