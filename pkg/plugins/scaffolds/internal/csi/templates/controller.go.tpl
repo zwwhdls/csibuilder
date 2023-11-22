@@ -16,8 +16,9 @@ var (
 	}
 )
 
-type controllerService struct {
-}
+type controllerService struct {}
+
+var _ csi.ControllerServer = &controllerService{}
 
 func newControllerService() controllerService {
 	return controllerService{}
@@ -122,5 +123,10 @@ func (d *controllerService) ControllerExpandVolume(ctx context.Context, request 
 
 // ControllerGetVolume get a volume
 func (d *controllerService) ControllerGetVolume(ctx context.Context, request *csi.ControllerGetVolumeRequest) (*csi.ControllerGetVolumeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "")
+}
+
+// ControllerModifyVolume modify a volume
+func (d *controllerService) ControllerModifyVolume(ctx context.Context, request *csi.ControllerModifyVolumeRequest) (*csi.ControllerModifyVolumeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "")
 }

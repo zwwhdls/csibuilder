@@ -30,6 +30,7 @@ Only two steps to create a CSI Driver project:
  mkdir $GOPATH/src/csi-hdls
  cd $GOPATH/src/csi-hdls
  # init csi repo
+ go env -w GOSUMDB=sum.golang.google.cn
  csibuilder init --repo hdls --owner "zwwhdls"
  ```
 
